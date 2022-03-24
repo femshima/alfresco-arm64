@@ -1,0 +1,75 @@
+<alfresco-config>
+    <config evaluator="string-compare" condition="Users" replace="true">
+        <users>
+            <!-- fix/workaround for https://github.com/Alfresco/acs-community-packaging/issues/367 -->
+            <show-authorization-status>false</show-authorization-status>
+        </users>
+    </config>
+    <config evaluator="string-compare" condition="Remote">
+        <remote>
+            <connector>
+                <id>alfrescoCookie</id>
+                <name>Alfresco Connector</name>
+                <description>Connects to an Alfresco instance using cookie-based authentication and awareness of Keycloak access tokens</description>
+                <class>de.acosix.alfresco.keycloak.share.remote.AccessTokenAwareSlingshotAlfrescoConnector</class>
+                <authenticator-id>acosix-kc-authenticator</authenticator-id>
+            </connector>
+
+            <authenticator>
+                <id>acosix-kc-authenticator</id>
+                <name>Acosix Keycloak Authenticator</name>
+                <description>Authenticator with flexible support for ticket, cookie, remote user, and access token</description>
+                <class>de.acosix.alfresco.keycloak.share.remote.AccessTokenAwareAlfrescoAuthenticator</class>
+            </authenticator>
+
+            <endpoint>
+                <id>alfresco</id>
+                <name>Alfresco - user access</name>
+                <description>Access to Alfresco Repository WebScripts that require user authentication</description>
+                <connector-id>alfrescoCookie</connector-id>
+                <endpoint-url>http://alfresco:8080/alfresco/wcs</endpoint-url>
+                <identity>user</identity>
+                <external-auth>true</external-auth>
+            </endpoint>
+
+            <endpoint>
+                <id>alfresco-feed</id>
+                <name>Alfresco Feed</name>
+                <description>Alfresco Feed - supports basic HTTP authentication via the EndPointProxyServlet</description>
+                <connector-id>alfrescoCookie</connector-id>
+                <endpoint-url>http://alfresco:8080/alfresco/wcs</endpoint-url>
+                <basic-auth>true</basic-auth>
+                <identity>user</identity>
+                <external-auth>true</external-auth>
+            </endpoint>
+
+            <endpoint>
+                <id>alfresco-api</id>
+                <parent-id>alfresco</parent-id>
+                <name>Alfresco Public API - user access</name>
+                <description>Access to Alfresco Repository Public API that require user authentication. This makes use of the authentication that is provided by parent 'alfresco' endpoint. </description>
+                <connector-id>alfrescoCookie</connector-id>
+                <endpoint-url>http://alfresco:8080/alfresco/api</endpoint-url>
+                <identity>user</identity>
+                <external-auth>true</external-auth>
+            </endpoint>
+        </remote>
+    </config>
+    <config evaluator="string-compare" condition="Keycloak">
+        <keycloak-auth-config>
+            <enhance-login-form>true</enhance-login-form>
+            <enable-sso-filter>true</enable-sso-filter>
+            <force-keycloak-sso>true</force-keycloak-sso>
+            <perform-token-exchange>true</perform-token-exchange>
+        </keycloak-auth-config>
+        <keycloak-adapter-config>
+            <auth-server-url></auth-server-url>
+            <realm></realm>
+            <resource>alfresco-share</resource>
+            <credentials>
+                <provider>secret</provider>
+                <secret></secret>
+            </credentials>
+        </keycloak-adapter-config>
+    </config>
+</alfresco-config>
